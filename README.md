@@ -1,5 +1,6 @@
 
-[![Download RegMask](https://img.shields.io/sourceforge/dt/regmask.svg)](https://sourceforge.net/projects/regmask/files/latest/download)
+[![Download RegMask](https://sourceforge.net/sflogo.php?type=13&group_id=3078726)](https://sourceforge.net/p/regmask/)
+
 
 # RegMask:
 A small tool that makes generating bit masks easy.
