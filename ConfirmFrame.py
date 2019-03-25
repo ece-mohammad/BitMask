@@ -5,10 +5,11 @@ from tkinter import ttk
 class ConfirmFrame(ttk.Frame):
     """A frame for operation control (`OK`, `Clear all`, `Exit`).
     """
+
     def __init__(self, master):
         super().__init__(master)
-        self._exit_button = ttk.Button(self, text="Exit", command = self.tear_down)
-        self._clear_button = ttk.Button(self, text="Clear", command = self.clear_all)
+        self._exit_button = ttk.Button(self, text="Exit", command=self.tear_down)
+        self._clear_button = ttk.Button(self, text="Clear", command=self.clear_all)
         # self._copy_button = ttk.Button(self, text="Copy", command=self.copy_value)
 
     def init_frame(self):
@@ -53,22 +54,24 @@ class ConfirmFrame(ttk.Frame):
 
 
 if __name__ == '__main__':
-    print("This script is a part of RegisterEdit project. It isn't supposed to run alone!")
-
-    from RegisterFrame import RegisterFrame
-
-    root = tk.Tk()
-    root.title("ConfirmFrame Test!")
-    mf = ttk.Frame(root, padding="3 3 12 12", relief="raised", borderwidth=3)
-    mf.grid(column=0, row=0)
-
-    reg = RegisterFrame(mf)
-    reg.grid(column=0, row=0)
-    reg.init_frame()
-
-    test = ConfirmFrame(mf)
-    test.grid(column=0, row=1)
-    test.init_frame()
-
-    root.mainloop()
-
+    
+    # print("This script is a part of RegisterEdit project. It isn't supposed to run alone!")
+    # 
+    # from RegisterFrame import RegisterFrame
+    # 
+    # root = tk.Tk()
+    # root.title("ConfirmFrame Test!")
+    # mf = ttk.Frame(root, padding="3 3 12 12", relief="raised", borderwidth=3)
+    # mf.grid(column=0, row=0)
+    # 
+    # reg = RegisterFrame(mf)
+    # reg.grid(column=0, row=0)
+    # reg.init_frame()
+    # 
+    # test = ConfirmFrame(mf)
+    # test.grid(column=0, row=1)
+    # test.init_frame()
+    # 
+    # root.mainloop()
+    
+    pass

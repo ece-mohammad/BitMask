@@ -4,16 +4,16 @@ from RegisterFrame import RegisterFrame
 from OctetFrame import OctetFrame
 from ConfirmFrame import ConfirmFrame
 
-def main():
 
+def main():
     """
     Create the program GUI.
     :return: None
     """
     # initialize root window
     root = tk.Tk()
-    root.title("Resiter Edit Tool")     # window title
-    root.resizable(0, 0)                # make it unresizable
+    root.title("Resiter Edit Tool")  # window title
+    root.resizable(0, 0)  # make it unresizable
     # root.attributes("-topmost", True)   # make it always on top
 
     # initlize the main frame
@@ -22,7 +22,8 @@ def main():
 
     # add a checkbutton for always on top
     on_top_var = tk.BooleanVar(0)
-    a_on_top = tk.Checkbutton(main_frame, text="Always on top", variable=on_top_var, command=lambda: root.attributes("-topmost", on_top_var.get()))
+    a_on_top = tk.Checkbutton(main_frame, text="Always on top", variable=on_top_var,
+                              command=lambda: root.attributes("-topmost", on_top_var.get()))
     a_on_top.grid(row=0, column=0, sticky=(tk.W,))
 
     # add register frame and initilize it
@@ -38,5 +39,7 @@ def main():
     # start main event loop
     root.mainloop()
 
+
 if __name__ == '__main__':
+
     main()
