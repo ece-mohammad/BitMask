@@ -514,7 +514,7 @@
      <property name="frameShadow">
       <enum>QFrame::Sunken</enum>
      </property>
-     <widget class="QLabel" name="labelBit32">
+     <widget class="QLabel" name="labelBit31">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -524,7 +524,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>32</string>
+       <string>31</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -752,7 +752,7 @@
        <string notr="true">buttonGroup_4</string>
       </attribute>
      </widget>
-     <widget class="QPushButton" name="pushButtonBit32">
+     <widget class="QPushButton" name="pushButtonBit31">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -1782,7 +1782,7 @@
   <tabstop>pushButtonBit28</tabstop>
   <tabstop>pushButtonBit29</tabstop>
   <tabstop>pushButtonBit30</tabstop>
-  <tabstop>pushButtonBit32</tabstop>
+  <tabstop>pushButtonBit31</tabstop>
   <tabstop>lineEditHexValue</tabstop>
   <tabstop>pushButtonCopyHexValue</tabstop>
   <tabstop>lineEditDeciValue</tabstop>
@@ -1794,9 +1794,9 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_4"/>
   <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup_4"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

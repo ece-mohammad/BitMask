@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'F:\Projects\Python\BitMask\Remake\BitMask.ui',
-# licensing of 'F:\Projects\Python\BitMask\Remake\BitMask.ui' applies.
+# Form implementation generated from reading ui file 'pyside-remake/BitMask.ui',
+# licensing of 'pyside-remake/BitMask.ui' applies.
 #
-# Created: Wed Sep 18 05:48:22 2019
+# Created: Fri Sep 20 03:05:54 2019
 #      by: pyside2-uic  running on PySide2 5.13.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,10 +12,47 @@ from PySide2 import QtCore, QtGui, QtWidgets
 import re
 
 
+class BitPushButton(QtWidgets.QPushButton):
+
+    BitToggled = QtCore.Signal(int)
+
+    def __init__(self, parent, index, bit_value, *args, **kwargs):
+        super(BitPushButton, self).__init__(parent, *args, **kwargs)
+        self._index = index
+        self._bit_value = bit_value
+        self.setText(str(self._bit_value))
+
+    @property
+    def index(self):
+        return self._index
+
+    @property
+    def bit_value(self):
+        return self._bit_value
+
+    @index.setter
+    def index(self, new_index):
+        self._index = new_index
+
+    @bit_value.setter
+    def bit_value(self, new_bit_value):
+        self._bit_value = new_bit_value
+
+    def get_value(self):
+        return (self._bit_value << self._index)
+
+    def button_click_slot(self):
+        self.BitToggled.emit(self._index)
+
+    def toggle_bit_value(self):
+        self._bit_value = (self._bit_value ^ 1)
+
+
 class Ui_BitMask32(object):
 
     def setupUi(self, BitMask32):
 
+        self.mainWindow = BitMask32
         BitMask32.setObjectName("BitMask32")
         BitMask32.setEnabled(True)
         BitMask32.resize(573, 424)
@@ -30,7 +67,6 @@ class Ui_BitMask32(object):
         self.root = QtWidgets.QWidget(BitMask32)
         self.root.setEnabled(True)
         self.root.setObjectName("root")
-
         self.mainFrame = QtWidgets.QFrame(self.root)
         self.mainFrame.setGeometry(QtCore.QRect(10, 10, 551, 381))
         self.mainFrame.setFrameShape(QtWidgets.QFrame.Panel)
@@ -64,81 +100,349 @@ class Ui_BitMask32(object):
         self.frameByte4.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.frameByte4.setObjectName("frameByte4")
 
-        self.bitValues = list()
-        self.buttons = [QtWidgets.QPushButton(self.frameByte1) for _ in range(8)] + \
-                       [QtWidgets.QPushButton(self.frameByte2) for _ in range(8)] + \
-                       [QtWidgets.QPushButton(self.frameByte3) for _ in range(8)] + \
-                       [QtWidgets.QPushButton(self.frameByte4) for _ in range(8)]
+        self.bit_buttons = [BitPushButton(index=i, parent=self.frameByte1, bit_value=0) for i in range(0, 8)] + \
+                           [BitPushButton(index=i, parent=self.frameByte2, bit_value=0) for i in range(8, 16)] + \
+                           [BitPushButton(index=i, parent=self.frameByte4, bit_value=0) for i in range(16, 24)] + \
+                           [BitPushButton(index=i, parent=self.frameByte3, bit_value=0) for i in range(24, 32)]
 
-        self.lineEditHexValue = QtWidgets.QLineEdit(self.mainFrame)
-        self.lineEditHexValue.setGeometry(QtCore.QRect(190, 231, 113, 28))
-        self.lineEditHexValue.setObjectName("lineEditHexValue")
+        for button in self.bit_buttons:
+            button.BitToggled.connect(self.pushButtonBitXX_clicked_slot)
 
-        self.checkBoxAOT = QtWidgets.QCheckBox(self.mainFrame)
-        self.checkBoxAOT.setGeometry(QtCore.QRect(10, 10, 121, 20))
-        self.checkBoxAOT.setObjectName("checkBoxAOT")
+        self.register_value = 0
 
-        self.lineEditDeciValue = QtWidgets.QLineEdit(self.mainFrame)
-        self.lineEditDeciValue.setGeometry(QtCore.QRect(190, 280, 113, 28))
-        self.lineEditDeciValue.setObjectName("lineEditDeciValue")
+        self.pushButtonBit00 = self.bit_buttons[0]
+        self.pushButtonBit00.setGeometry(QtCore.QRect(230, 50, 32, 32))
+        self.pushButtonBit00.setToolTip("Bit 0")
+        self.pushButtonBit00.setAutoExclusive(False)
+        self.pushButtonBit00.setAutoDefault(False)
+        self.pushButtonBit00.setDefault(False)
+        self.pushButtonBit00.setFlat(False)
+        self.pushButtonBit00.setObjectName("pushButtonBit00")
 
-        self.labelBit23 = QtWidgets.QLabel(self.frameByte4)
-        self.labelBit23.setGeometry(QtCore.QRect(20, 20, 30, 30))
-        self.labelBit23.setAlignment(QtCore.Qt.AlignCenter)
-        self.labelBit23.setObjectName("labelBit23")
+        self.pushButtonBit01 = self.bit_buttons[1]
+        self.pushButtonBit01.setGeometry(QtCore.QRect(200, 50, 32, 32))
+        self.pushButtonBit01.setToolTip("Bit 1")
+        self.pushButtonBit01.setAutoExclusive(False)
+        self.pushButtonBit01.setAutoDefault(False)
+        self.pushButtonBit01.setDefault(False)
+        self.pushButtonBit01.setFlat(False)
+        self.pushButtonBit01.setObjectName("pushButtonBit01")
 
-        self.pushButtonBit21 = self.buttons[21]
-        self.pushButtonBit21.setGeometry(QtCore.QRect(80, 50, 32, 32))
-        self.pushButtonBit21.setAutoExclusive(False)
-        self.pushButtonBit21.setAutoDefault(False)
-        self.pushButtonBit21.setDefault(False)
-        self.pushButtonBit21.setFlat(False)
-        self.pushButtonBit21.setObjectName("pushButtonBit21")
+        self.pushButtonBit02 = self.bit_buttons[2]
+        self.pushButtonBit02.setGeometry(QtCore.QRect(170, 50, 32, 32))
+        self.pushButtonBit02.setToolTip("Bit 2")
+        self.pushButtonBit02.setAutoExclusive(False)
+        self.pushButtonBit02.setAutoDefault(False)
+        self.pushButtonBit02.setDefault(False)
+        self.pushButtonBit02.setFlat(False)
+        self.pushButtonBit02.setObjectName("pushButtonBit02")
 
-        self.buttonGroup_3 = QtWidgets.QButtonGroup(BitMask32)
-        self.buttonGroup_3.setObjectName("buttonGroup_3")
-        self.buttonGroup_3.addButton(self.pushButtonBit21)
+        self.pushButtonBit03 = self.bit_buttons[3]
+        self.pushButtonBit03.setGeometry(QtCore.QRect(140, 50, 32, 32))
+        self.pushButtonBit03.setToolTip("Bit 3")
+        self.pushButtonBit03.setAutoExclusive(False)
+        self.pushButtonBit03.setAutoDefault(False)
+        self.pushButtonBit03.setDefault(False)
+        self.pushButtonBit03.setFlat(False)
+        self.pushButtonBit03.setObjectName("pushButtonBit03")
 
-        self.pushButtonBit16 = self.buttons[16]
+        self.pushButtonBit04 = self.bit_buttons[4]
+        self.pushButtonBit04.setGeometry(QtCore.QRect(110, 50, 32, 32))
+        self.pushButtonBit04.setToolTip("Bit 4")
+        self.pushButtonBit04.setAutoExclusive(False)
+        self.pushButtonBit04.setAutoDefault(False)
+        self.pushButtonBit04.setDefault(False)
+        self.pushButtonBit04.setFlat(False)
+        self.pushButtonBit04.setObjectName("pushButtonBit04")
+
+        self.pushButtonBit05 = self.bit_buttons[5]
+        self.pushButtonBit05.setGeometry(QtCore.QRect(80, 50, 32, 32))
+        self.pushButtonBit05.setToolTip("Bit 5")
+        self.pushButtonBit05.setAutoExclusive(False)
+        self.pushButtonBit05.setAutoDefault(False)
+        self.pushButtonBit05.setDefault(False)
+        self.pushButtonBit05.setFlat(False)
+        self.pushButtonBit05.setObjectName("pushButtonBit05")
+
+        self.pushButtonBit06 = self.bit_buttons[6]
+        self.pushButtonBit06.setGeometry(QtCore.QRect(50, 50, 32, 32))
+        self.pushButtonBit06.setToolTip("Bit 6")
+        self.pushButtonBit06.setAutoExclusive(False)
+        self.pushButtonBit06.setAutoDefault(False)
+        self.pushButtonBit06.setDefault(False)
+        self.pushButtonBit06.setFlat(False)
+        self.pushButtonBit06.setObjectName("pushButtonBit06")
+
+        self.pushButtonBit07 = self.bit_buttons[7]
+        self.pushButtonBit07.setGeometry(QtCore.QRect(20, 50, 32, 32))
+        self.pushButtonBit07.setToolTip("Bit 7")
+        self.pushButtonBit07.setAutoExclusive(False)
+        self.pushButtonBit07.setAutoDefault(False)
+        self.pushButtonBit07.setDefault(False)
+        self.pushButtonBit07.setFlat(False)
+        self.pushButtonBit07.setObjectName("pushButtonBit07")
+
+        self.pushButtonBit08 = self.bit_buttons[8]
+        self.pushButtonBit08.setGeometry(QtCore.QRect(220, 50, 32, 32))
+        self.pushButtonBit08.setToolTip("Bit 8")
+        self.pushButtonBit08.setAutoExclusive(False)
+        self.pushButtonBit08.setAutoDefault(False)
+        self.pushButtonBit08.setDefault(False)
+        self.pushButtonBit08.setFlat(False)
+        self.pushButtonBit08.setObjectName("pushButtonBit08")
+
+        self.pushButtonBit09 = self.bit_buttons[9]
+        self.pushButtonBit09.setGeometry(QtCore.QRect(190, 50, 32, 32))
+        self.pushButtonBit09.setToolTip("Bit 9")
+        self.pushButtonBit09.setAutoExclusive(False)
+        self.pushButtonBit09.setAutoDefault(False)
+        self.pushButtonBit09.setDefault(False)
+        self.pushButtonBit09.setFlat(False)
+        self.pushButtonBit09.setObjectName("pushButtonBit09")
+
+        self.pushButtonBit10 = self.bit_buttons[10]
+        self.pushButtonBit10.setGeometry(QtCore.QRect(160, 50, 32, 32))
+        self.pushButtonBit10.setToolTip("Bit 10")
+        self.pushButtonBit10.setAutoExclusive(False)
+        self.pushButtonBit10.setAutoDefault(False)
+        self.pushButtonBit10.setDefault(False)
+        self.pushButtonBit10.setFlat(False)
+        self.pushButtonBit10.setObjectName("pushButtonBit10")
+
+        self.pushButtonBit11 = self.bit_buttons[11]
+        self.pushButtonBit11.setGeometry(QtCore.QRect(130, 50, 32, 32))
+        self.pushButtonBit11.setToolTip("Bit 11")
+        self.pushButtonBit11.setAutoExclusive(False)
+        self.pushButtonBit11.setAutoDefault(False)
+        self.pushButtonBit11.setDefault(False)
+        self.pushButtonBit11.setFlat(False)
+        self.pushButtonBit11.setObjectName("pushButtonBit11")
+
+        self.pushButtonBit12 = self.bit_buttons[12]
+        self.pushButtonBit12.setGeometry(QtCore.QRect(100, 50, 32, 32))
+        self.pushButtonBit12.setToolTip("Bit 12")
+        self.pushButtonBit12.setAutoExclusive(False)
+        self.pushButtonBit12.setAutoDefault(False)
+        self.pushButtonBit12.setDefault(False)
+        self.pushButtonBit12.setFlat(False)
+        self.pushButtonBit12.setObjectName("pushButtonBit12")
+
+        self.pushButtonBit13 = self.bit_buttons[13]
+        self.pushButtonBit13.setGeometry(QtCore.QRect(70, 50, 32, 32))
+        self.pushButtonBit13.setToolTip("Bit 13")
+        self.pushButtonBit13.setAutoExclusive(False)
+        self.pushButtonBit13.setAutoDefault(False)
+        self.pushButtonBit13.setDefault(False)
+        self.pushButtonBit13.setFlat(False)
+        self.pushButtonBit13.setObjectName("pushButtonBit13")
+
+        self.pushButtonBit14 = self.bit_buttons[14]
+        self.pushButtonBit14.setGeometry(QtCore.QRect(40, 50, 32, 32))
+        self.pushButtonBit14.setToolTip("Bit 14")
+        self.pushButtonBit14.setAutoExclusive(False)
+        self.pushButtonBit14.setAutoDefault(False)
+        self.pushButtonBit14.setDefault(False)
+        self.pushButtonBit14.setFlat(False)
+        self.pushButtonBit14.setObjectName("pushButtonBit14")
+
+        self.pushButtonBit15 = self.bit_buttons[15]
+        self.pushButtonBit15.setGeometry(QtCore.QRect(10, 50, 32, 32))
+        self.pushButtonBit15.setToolTip("Bit 15")
+        self.pushButtonBit15.setAutoExclusive(False)
+        self.pushButtonBit15.setAutoDefault(False)
+        self.pushButtonBit15.setDefault(False)
+        self.pushButtonBit15.setFlat(False)
+        self.pushButtonBit15.setObjectName("pushButtonBit15")
+
+        self.pushButtonBit16 = self.bit_buttons[16]
         self.pushButtonBit16.setGeometry(QtCore.QRect(230, 50, 32, 32))
-        self.pushButtonBit16.setToolTip("")
+        self.pushButtonBit16.setToolTip("Bit 16")
         self.pushButtonBit16.setAutoExclusive(False)
         self.pushButtonBit16.setAutoDefault(False)
         self.pushButtonBit16.setDefault(False)
         self.pushButtonBit16.setFlat(False)
         self.pushButtonBit16.setObjectName("pushButtonBit16")
 
-        self.buttonGroup_3.addButton(self.pushButtonBit16)
+        self.pushButtonBit17 = self.bit_buttons[17]
+        self.pushButtonBit17.setGeometry(QtCore.QRect(200, 50, 32, 32))
+        self.pushButtonBit17.setToolTip("Bit 17")
+        self.pushButtonBit17.setAutoExclusive(False)
+        self.pushButtonBit17.setAutoDefault(False)
+        self.pushButtonBit17.setDefault(False)
+        self.pushButtonBit17.setFlat(False)
+        self.pushButtonBit17.setObjectName("pushButtonBit17")
 
-        self.pushButtonBit22 = self.buttons[22]
-        self.pushButtonBit22.setGeometry(QtCore.QRect(50, 50, 32, 32))
-        self.pushButtonBit22.setAutoExclusive(False)
-        self.pushButtonBit22.setAutoDefault(False)
-        self.pushButtonBit22.setDefault(False)
-        self.pushButtonBit22.setFlat(False)
-        self.pushButtonBit22.setObjectName("pushButtonBit22")
-
-        self.buttonGroup_3.addButton(self.pushButtonBit22)
-
-        self.pushButtonBit23 = self.buttons[23]
-        self.pushButtonBit23.setGeometry(QtCore.QRect(20, 50, 32, 32))
-        self.pushButtonBit23.setAutoExclusive(False)
-        self.pushButtonBit23.setAutoDefault(False)
-        self.pushButtonBit23.setDefault(False)
-        self.pushButtonBit23.setFlat(False)
-        self.pushButtonBit23.setObjectName("pushButtonBit23")
-
-        self.buttonGroup_3.addButton(self.pushButtonBit23)
-
-        self.pushButtonBit18 = self.buttons[18]
+        self.pushButtonBit18 = self.bit_buttons[18]
         self.pushButtonBit18.setGeometry(QtCore.QRect(170, 50, 32, 32))
+        self.pushButtonBit18.setToolTip("Bit 18")
         self.pushButtonBit18.setAutoExclusive(False)
         self.pushButtonBit18.setAutoDefault(False)
         self.pushButtonBit18.setDefault(False)
         self.pushButtonBit18.setFlat(False)
         self.pushButtonBit18.setObjectName("pushButtonBit18")
 
-        self.buttonGroup_3.addButton(self.pushButtonBit18)
+        self.pushButtonBit19 = self.bit_buttons[19]
+        self.pushButtonBit19.setGeometry(QtCore.QRect(140, 50, 32, 32))
+        self.pushButtonBit19.setToolTip("Bit 19")
+        self.pushButtonBit19.setAutoExclusive(False)
+        self.pushButtonBit19.setAutoDefault(False)
+        self.pushButtonBit19.setDefault(False)
+        self.pushButtonBit19.setFlat(False)
+        self.pushButtonBit19.setObjectName("pushButtonBit19")
+
+        self.pushButtonBit20 = self.bit_buttons[20]
+        self.pushButtonBit20.setGeometry(QtCore.QRect(110, 50, 32, 32))
+        self.pushButtonBit20.setToolTip("Bit 20")
+        self.pushButtonBit20.setAutoExclusive(False)
+        self.pushButtonBit20.setAutoDefault(False)
+        self.pushButtonBit20.setDefault(False)
+        self.pushButtonBit20.setFlat(False)
+        self.pushButtonBit20.setObjectName("pushButtonBit20")
+
+        self.pushButtonBit21 = self.bit_buttons[21]
+        self.pushButtonBit21.setGeometry(QtCore.QRect(80, 50, 32, 32))
+        self.pushButtonBit21.setToolTip("Bit 21")
+        self.pushButtonBit21.setAutoExclusive(False)
+        self.pushButtonBit21.setAutoDefault(False)
+        self.pushButtonBit21.setDefault(False)
+        self.pushButtonBit21.setFlat(False)
+        self.pushButtonBit21.setObjectName("pushButtonBit21")
+
+        self.pushButtonBit22 = self.bit_buttons[22]
+        self.pushButtonBit22.setGeometry(QtCore.QRect(50, 50, 32, 32))
+        self.pushButtonBit22.setToolTip("Bit 22")
+        self.pushButtonBit22.setAutoExclusive(False)
+        self.pushButtonBit22.setAutoDefault(False)
+        self.pushButtonBit22.setDefault(False)
+        self.pushButtonBit22.setFlat(False)
+        self.pushButtonBit22.setObjectName("pushButtonBit22")
+
+        self.pushButtonBit23 = self.bit_buttons[23]
+        self.pushButtonBit23.setGeometry(QtCore.QRect(20, 50, 32, 32))
+        self.pushButtonBit23.setToolTip("Bit 23")
+        self.pushButtonBit23.setAutoExclusive(False)
+        self.pushButtonBit23.setAutoDefault(False)
+        self.pushButtonBit23.setDefault(False)
+        self.pushButtonBit23.setFlat(False)
+        self.pushButtonBit23.setObjectName("pushButtonBit23")
+
+        self.pushButtonBit24 = self.bit_buttons[24]
+        self.pushButtonBit24.setGeometry(QtCore.QRect(220, 50, 32, 32))
+        self.pushButtonBit24.setToolTip("Bit 24")
+        self.pushButtonBit24.setAutoExclusive(False)
+        self.pushButtonBit24.setAutoDefault(False)
+        self.pushButtonBit24.setDefault(False)
+        self.pushButtonBit24.setFlat(False)
+        self.pushButtonBit24.setObjectName("pushButtonBit24")
+
+        self.pushButtonBit25 = self.bit_buttons[25]
+        self.pushButtonBit25.setGeometry(QtCore.QRect(190, 50, 32, 32))
+        self.pushButtonBit25.setToolTip("Bit 25")
+        self.pushButtonBit25.setAutoExclusive(False)
+        self.pushButtonBit25.setAutoDefault(False)
+        self.pushButtonBit25.setDefault(False)
+        self.pushButtonBit25.setFlat(False)
+        self.pushButtonBit25.setObjectName("pushButtonBit25")
+
+        self.pushButtonBit26 = self.bit_buttons[26]
+        self.pushButtonBit26.setGeometry(QtCore.QRect(160, 50, 32, 32))
+        self.pushButtonBit26.setToolTip("Bit 26")
+        self.pushButtonBit26.setAutoExclusive(False)
+        self.pushButtonBit26.setAutoDefault(False)
+        self.pushButtonBit26.setDefault(False)
+        self.pushButtonBit26.setFlat(False)
+        self.pushButtonBit26.setObjectName("pushButtonBit26")
+
+        self.pushButtonBit27 = self.bit_buttons[27]
+        self.pushButtonBit27.setGeometry(QtCore.QRect(130, 50, 32, 32))
+        self.pushButtonBit27.setToolTip("Bit 27")
+        self.pushButtonBit27.setAutoExclusive(False)
+        self.pushButtonBit27.setAutoDefault(False)
+        self.pushButtonBit27.setDefault(False)
+        self.pushButtonBit27.setFlat(False)
+        self.pushButtonBit27.setObjectName("pushButtonBit27")
+
+        self.pushButtonBit28 = self.bit_buttons[28]
+        self.pushButtonBit28.setGeometry(QtCore.QRect(100, 50, 32, 32))
+        self.pushButtonBit28.setToolTip("Bit 28")
+        self.pushButtonBit28.setAutoExclusive(False)
+        self.pushButtonBit28.setAutoDefault(False)
+        self.pushButtonBit28.setDefault(False)
+        self.pushButtonBit28.setFlat(False)
+        self.pushButtonBit28.setObjectName("pushButtonBit28")
+
+        self.pushButtonBit29 = self.bit_buttons[29]
+        self.pushButtonBit29.setGeometry(QtCore.QRect(70, 50, 32, 32))
+        self.pushButtonBit29.setToolTip("Bit 29")
+        self.pushButtonBit29.setAutoExclusive(False)
+        self.pushButtonBit29.setAutoDefault(False)
+        self.pushButtonBit29.setDefault(False)
+        self.pushButtonBit29.setFlat(False)
+        self.pushButtonBit29.setObjectName("pushButtonBit29")
+
+        self.pushButtonBit30 = self.bit_buttons[30]
+        self.pushButtonBit30.setGeometry(QtCore.QRect(40, 50, 32, 32))
+        self.pushButtonBit30.setToolTip("Bit 30")
+        self.pushButtonBit30.setAutoExclusive(False)
+        self.pushButtonBit30.setAutoDefault(False)
+        self.pushButtonBit30.setDefault(False)
+        self.pushButtonBit30.setFlat(False)
+        self.pushButtonBit30.setObjectName("pushButtonBit30")
+
+        self.pushButtonBit31 = self.bit_buttons[31]
+        self.pushButtonBit31.setGeometry(QtCore.QRect(10, 50, 32, 32))
+        self.pushButtonBit31.setToolTip("Bit 31")
+        self.pushButtonBit31.setAutoExclusive(False)
+        self.pushButtonBit31.setAutoDefault(False)
+        self.pushButtonBit31.setDefault(False)
+        self.pushButtonBit31.setFlat(False)
+        self.pushButtonBit31.setObjectName("pushButtonBit31")
+
+        self.pushButtonCopyHexValue = QtWidgets.QPushButton(self.mainFrame)
+        self.pushButtonCopyHexValue.setGeometry(QtCore.QRect(370, 230, 161, 28))
+        self.pushButtonCopyHexValue.setObjectName("pushButtonCopyHexValue")
+
+        self.pushButtonClear = QtWidgets.QPushButton(self.mainFrame)
+        self.pushButtonClear.setGeometry(QtCore.QRect(100, 340, 93, 28))
+        self.pushButtonClear.setObjectName("pushButtonClear")
+
+        self.pushButtonCopyDeciValue = QtWidgets.QPushButton(self.mainFrame)
+        self.pushButtonCopyDeciValue.setGeometry(QtCore.QRect(370, 280, 161, 28))
+        self.pushButtonCopyDeciValue.setObjectName("pushButtonCopyDeciValue")
+
+        self.pushButtonExit = QtWidgets.QPushButton(self.mainFrame)
+        self.pushButtonExit.setGeometry(QtCore.QRect(290, 340, 93, 28))
+        self.pushButtonExit.setObjectName("pushButtonExit")
+
+        self.lineEditHexValue = QtWidgets.QLineEdit(self.mainFrame)
+        self.lineEditHexValue.setGeometry(QtCore.QRect(190, 231, 113, 28))
+        self.lineEditHexValue.setObjectName("lineEditHexValue")
+        self.lineEditHexValue.setText("0x"+hex(self.register_value)[2:].upper().zfill(8))
+
+        self.lineEditDeciValue = QtWidgets.QLineEdit(self.mainFrame)
+        self.lineEditDeciValue.setGeometry(QtCore.QRect(190, 280, 113, 28))
+        self.lineEditDeciValue.setObjectName("lineEditDeciValue")
+        self.lineEditDeciValue.setText(str(self.register_value))
+
+        self.checkBoxAOT = QtWidgets.QCheckBox(self.mainFrame)
+        self.checkBoxAOT.setGeometry(QtCore.QRect(10, 10, 121, 20))
+        self.checkBoxAOT.setObjectName("checkBoxAOT")
+
+        self.clipBoard = QtGui.QClipboard()
+        self.original_text = self.clipBoard.text()
+
+        self.labelDeciValue = QtWidgets.QLabel(self.mainFrame)
+        self.labelDeciValue.setGeometry(QtCore.QRect(20, 280, 121, 28))
+        self.labelDeciValue.setObjectName("labelDeciValue")
+
+        self.labelHexValue = QtWidgets.QLabel(self.mainFrame)
+        self.labelHexValue.setGeometry(QtCore.QRect(20, 230, 121, 28))
+        self.labelHexValue.setObjectName("labelHexValue")
+
+        self.labelBit23 = QtWidgets.QLabel(self.frameByte4)
+        self.labelBit23.setGeometry(QtCore.QRect(20, 20, 30, 30))
+        self.labelBit23.setAlignment(QtCore.Qt.AlignCenter)
+        self.labelBit23.setObjectName("labelBit23")
 
         self.labelBit16 = QtWidgets.QLabel(self.frameByte4)
         self.labelBit16.setGeometry(QtCore.QRect(230, 20, 30, 30))
@@ -151,30 +455,10 @@ class Ui_BitMask32(object):
         self.labelBit19.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit19.setObjectName("labelBit19")
 
-        self.pushButtonBit20 = self.buttons[20]
-        self.pushButtonBit20.setGeometry(QtCore.QRect(110, 50, 32, 32))
-        self.pushButtonBit20.setAutoExclusive(False)
-        self.pushButtonBit20.setAutoDefault(False)
-        self.pushButtonBit20.setDefault(False)
-        self.pushButtonBit20.setFlat(False)
-        self.pushButtonBit20.setObjectName("pushButtonBit20")
-
-        self.buttonGroup_3.addButton(self.pushButtonBit20)
-
         self.labelBit20 = QtWidgets.QLabel(self.frameByte4)
         self.labelBit20.setGeometry(QtCore.QRect(110, 20, 30, 30))
         self.labelBit20.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit20.setObjectName("labelBit20")
-
-        self.pushButtonBit19 = self.buttons[19]
-        self.pushButtonBit19.setGeometry(QtCore.QRect(140, 50, 32, 32))
-        self.pushButtonBit19.setAutoExclusive(False)
-        self.pushButtonBit19.setAutoDefault(False)
-        self.pushButtonBit19.setDefault(False)
-        self.pushButtonBit19.setFlat(False)
-        self.pushButtonBit19.setObjectName("pushButtonBit19")
-
-        self.buttonGroup_3.addButton(self.pushButtonBit19)
 
         self.labelBit17 = QtWidgets.QLabel(self.frameByte4)
         self.labelBit17.setGeometry(QtCore.QRect(200, 20, 30, 30))
@@ -186,16 +470,6 @@ class Ui_BitMask32(object):
         self.labelBit22.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit22.setObjectName("labelBit22")
 
-        self.pushButtonBit17 = self.buttons[17]
-        self.pushButtonBit17.setGeometry(QtCore.QRect(200, 50, 32, 32))
-        self.pushButtonBit17.setAutoExclusive(False)
-        self.pushButtonBit17.setAutoDefault(False)
-        self.pushButtonBit17.setDefault(False)
-        self.pushButtonBit17.setFlat(False)
-        self.pushButtonBit17.setObjectName("pushButtonBit17")
-
-        self.buttonGroup_3.addButton(self.pushButtonBit17)
-
         self.labelBit21 = QtWidgets.QLabel(self.frameByte4)
         self.labelBit21.setGeometry(QtCore.QRect(80, 20, 30, 30))
         self.labelBit21.setAlignment(QtCore.Qt.AlignCenter)
@@ -205,18 +479,6 @@ class Ui_BitMask32(object):
         self.labelBit18.setGeometry(QtCore.QRect(170, 20, 30, 30))
         self.labelBit18.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit18.setObjectName("labelBit18")
-
-        self.label_4 = QtWidgets.QLabel(self.frameByte4)
-        self.label_4.setGeometry(QtCore.QRect(10, 0, 55, 16))
-        self.label_4.setObjectName("label_4")
-
-        self.pushButtonCopyHexValue = QtWidgets.QPushButton(self.mainFrame)
-        self.pushButtonCopyHexValue.setGeometry(QtCore.QRect(370, 230, 161, 28))
-        self.pushButtonCopyHexValue.setObjectName("pushButtonCopyHexValue")
-
-        self.pushButtonClear = QtWidgets.QPushButton(self.mainFrame)
-        self.pushButtonClear.setGeometry(QtCore.QRect(100, 340, 93, 28))
-        self.pushButtonClear.setObjectName("pushButtonClear")
 
         self.labelBit31 = QtWidgets.QLabel(self.frameByte3)
         self.labelBit31.setGeometry(QtCore.QRect(10, 20, 30, 30))
@@ -228,89 +490,16 @@ class Ui_BitMask32(object):
         self.labelBit30.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit30.setObjectName("labelBit30")
 
-        self.pushButtonBit25 = self.buttons[25]
-        self.pushButtonBit25.setGeometry(QtCore.QRect(190, 50, 32, 32))
-        self.pushButtonBit25.setAutoExclusive(False)
-        self.pushButtonBit25.setAutoDefault(False)
-        self.pushButtonBit25.setDefault(False)
-        self.pushButtonBit25.setFlat(False)
-        self.pushButtonBit25.setObjectName("pushButtonBit25")
-
-        self.buttonGroup_4 = QtWidgets.QButtonGroup(BitMask32)
-        self.buttonGroup_4.setObjectName("buttonGroup_4")
-        self.buttonGroup_4.addButton(self.pushButtonBit25)
-
-        self.pushButtonBit26 = self.buttons[26]
-        self.pushButtonBit26.setGeometry(QtCore.QRect(160, 50, 32, 32))
-        self.pushButtonBit26.setAutoExclusive(False)
-        self.pushButtonBit26.setAutoDefault(False)
-        self.pushButtonBit26.setDefault(False)
-        self.pushButtonBit26.setFlat(False)
-        self.pushButtonBit26.setObjectName("pushButtonBit26")
-
-        self.buttonGroup_4.addButton(self.pushButtonBit26)
-
         self.labelBit26 = QtWidgets.QLabel(self.frameByte3)
         self.labelBit26.setGeometry(QtCore.QRect(160, 20, 30, 30))
         self.labelBit26.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit26.setObjectName("labelBit26")
-
-        self.pushButtonBit30 = self.buttons[30]
-        self.pushButtonBit30.setGeometry(QtCore.QRect(40, 50, 32, 32))
-        self.pushButtonBit30.setAutoExclusive(False)
-        self.pushButtonBit30.setAutoDefault(False)
-        self.pushButtonBit30.setDefault(False)
-        self.pushButtonBit30.setFlat(False)
-        self.pushButtonBit30.setObjectName("pushButtonBit30")
-
-        self.buttonGroup_4.addButton(self.pushButtonBit30)
-
-        self.pushButtonBit29 = self.buttons[29]
-        self.pushButtonBit29.setGeometry(QtCore.QRect(70, 50, 32, 32))
-        self.pushButtonBit29.setAutoExclusive(False)
-        self.pushButtonBit29.setAutoDefault(False)
-        self.pushButtonBit29.setDefault(False)
-        self.pushButtonBit29.setFlat(False)
-        self.pushButtonBit29.setObjectName("pushButtonBit29")
-
-        self.buttonGroup_4.addButton(self.pushButtonBit29)
-
-        self.pushButtonBit24 = self.buttons[24]
-        self.pushButtonBit24.setGeometry(QtCore.QRect(220, 50, 32, 32))
-        self.pushButtonBit24.setToolTip("")
-        self.pushButtonBit24.setAutoExclusive(False)
-        self.pushButtonBit24.setAutoDefault(False)
-        self.pushButtonBit24.setDefault(False)
-        self.pushButtonBit24.setFlat(False)
-        self.pushButtonBit24.setObjectName("pushButtonBit24")
-
-        self.buttonGroup_4.addButton(self.pushButtonBit24)
 
         self.labelBit24 = QtWidgets.QLabel(self.frameByte3)
         self.labelBit24.setGeometry(QtCore.QRect(220, 20, 30, 30))
         self.labelBit24.setTextFormat(QtCore.Qt.AutoText)
         self.labelBit24.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit24.setObjectName("labelBit24")
-
-        self.pushButtonBit28 = self.buttons[28]
-        self.pushButtonBit28.setGeometry(QtCore.QRect(100, 50, 32, 32))
-        self.pushButtonBit28.setAutoExclusive(False)
-        self.pushButtonBit28.setAutoDefault(False)
-        self.pushButtonBit28.setDefault(False)
-        self.pushButtonBit28.setFlat(False)
-        self.pushButtonBit28.setObjectName("pushButtonBit28")
-
-        self.buttonGroup_4.addButton(self.pushButtonBit28)
-
-        self.pushButtonBit31 = self.buttons[31]
-        self.pushButtonBit31.setGeometry(QtCore.QRect(10, 50, 32, 32))
-        self.pushButtonBit31.setAutoExclusive(False)
-        self.pushButtonBit31.setAutoDefault(False)
-        self.pushButtonBit31.setDefault(False)
-        self.pushButtonBit31.setFlat(False)
-        self.pushButtonBit31.setObjectName("pushButtonBit31")
-
-        self.buttonGroup_4.addButton(self.pushButtonBit31)
 
         self.labelBit27 = QtWidgets.QLabel(self.frameByte3)
         self.labelBit27.setGeometry(QtCore.QRect(130, 20, 30, 30))
@@ -332,36 +521,10 @@ class Ui_BitMask32(object):
         self.labelBit29.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit29.setObjectName("labelBit29")
 
-        self.pushButtonBit27 = self.buttons[27]
-        self.pushButtonBit27.setGeometry(QtCore.QRect(130, 50, 32, 32))
-        self.pushButtonBit27.setAutoExclusive(False)
-        self.pushButtonBit27.setAutoDefault(False)
-        self.pushButtonBit27.setDefault(False)
-        self.pushButtonBit27.setFlat(False)
-        self.pushButtonBit27.setObjectName("pushButtonBit27")
-
-        self.buttonGroup_4.addButton(self.pushButtonBit27)
-
-        self.label_3 = QtWidgets.QLabel(self.frameByte3)
-        self.label_3.setGeometry(QtCore.QRect(10, 0, 55, 16))
-        self.label_3.setObjectName("label_3")
-
         self.labelBit15 = QtWidgets.QLabel(self.frameByte2)
         self.labelBit15.setGeometry(QtCore.QRect(10, 20, 30, 30))
         self.labelBit15.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit15.setObjectName("labelBit15")
-
-        self.pushButtonBit09 = self.buttons[9]
-        self.pushButtonBit09.setGeometry(QtCore.QRect(190, 50, 32, 32))
-        self.pushButtonBit09.setAutoExclusive(False)
-        self.pushButtonBit09.setAutoDefault(False)
-        self.pushButtonBit09.setDefault(False)
-        self.pushButtonBit09.setFlat(False)
-        self.pushButtonBit09.setObjectName("pushButtonBit09")
-
-        self.buttonGroup_2 = QtWidgets.QButtonGroup(BitMask32)
-        self.buttonGroup_2.setObjectName("buttonGroup_2")
-        self.buttonGroup_2.addButton(self.pushButtonBit09)
 
         self.labelBit10 = QtWidgets.QLabel(self.frameByte2)
         self.labelBit10.setGeometry(QtCore.QRect(160, 20, 30, 30))
@@ -378,41 +541,10 @@ class Ui_BitMask32(object):
         self.labelBit13.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit13.setObjectName("labelBit13")
 
-        self.pushButtonBit08 = self.buttons[8]
-        self.pushButtonBit08.setGeometry(QtCore.QRect(220, 50, 32, 32))
-        self.pushButtonBit08.setToolTip("")
-        self.pushButtonBit08.setAutoExclusive(False)
-        self.pushButtonBit08.setAutoDefault(False)
-        self.pushButtonBit08.setDefault(False)
-        self.pushButtonBit08.setFlat(False)
-        self.pushButtonBit08.setObjectName("pushButtonBit08")
-
-        self.buttonGroup_2.addButton(self.pushButtonBit08)
-
         self.labelBit12 = QtWidgets.QLabel(self.frameByte2)
         self.labelBit12.setGeometry(QtCore.QRect(100, 20, 30, 30))
         self.labelBit12.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit12.setObjectName("labelBit12")
-
-        self.pushButtonBit10 = self.buttons[10]
-        self.pushButtonBit10.setGeometry(QtCore.QRect(160, 50, 32, 32))
-        self.pushButtonBit10.setAutoExclusive(False)
-        self.pushButtonBit10.setAutoDefault(False)
-        self.pushButtonBit10.setDefault(False)
-        self.pushButtonBit10.setFlat(False)
-        self.pushButtonBit10.setObjectName("pushButtonBit10")
-
-        self.buttonGroup_2.addButton(self.pushButtonBit10)
-
-        self.pushButtonBit12 = self.buttons[12]
-        self.pushButtonBit12.setGeometry(QtCore.QRect(100, 50, 32, 32))
-        self.pushButtonBit12.setAutoExclusive(False)
-        self.pushButtonBit12.setAutoDefault(False)
-        self.pushButtonBit12.setDefault(False)
-        self.pushButtonBit12.setFlat(False)
-        self.pushButtonBit12.setObjectName("pushButtonBit12")
-
-        self.buttonGroup_2.addButton(self.pushButtonBit12)
 
         self.labelBit09 = QtWidgets.QLabel(self.frameByte2)
         self.labelBit09.setGeometry(QtCore.QRect(190, 20, 30, 30))
@@ -429,141 +561,6 @@ class Ui_BitMask32(object):
         self.labelBit08.setTextFormat(QtCore.Qt.AutoText)
         self.labelBit08.setAlignment(QtCore.Qt.AlignCenter)
         self.labelBit08.setObjectName("labelBit08")
-
-        self.pushButtonBit14 = self.buttons[14]
-        self.pushButtonBit14.setGeometry(QtCore.QRect(40, 50, 32, 32))
-        self.pushButtonBit14.setAutoExclusive(False)
-        self.pushButtonBit14.setAutoDefault(False)
-        self.pushButtonBit14.setDefault(False)
-        self.pushButtonBit14.setFlat(False)
-        self.pushButtonBit14.setObjectName("pushButtonBit14")
-
-        self.buttonGroup_2.addButton(self.pushButtonBit14)
-
-        self.pushButtonBit15 = self.buttons[15]
-        self.pushButtonBit15.setGeometry(QtCore.QRect(10, 50, 32, 32))
-        self.pushButtonBit15.setAutoExclusive(False)
-        self.pushButtonBit15.setAutoDefault(False)
-        self.pushButtonBit15.setDefault(False)
-        self.pushButtonBit15.setFlat(False)
-        self.pushButtonBit15.setObjectName("pushButtonBit15")
-
-        self.buttonGroup_2.addButton(self.pushButtonBit15)
-
-        self.pushButtonBit13 = self.buttons[13]
-        self.pushButtonBit13.setGeometry(QtCore.QRect(70, 50, 32, 32))
-        self.pushButtonBit13.setAutoExclusive(False)
-        self.pushButtonBit13.setAutoDefault(False)
-        self.pushButtonBit13.setDefault(False)
-        self.pushButtonBit13.setFlat(False)
-        self.pushButtonBit13.setObjectName("pushButtonBit13")
-
-        self.buttonGroup_2.addButton(self.pushButtonBit13)
-
-        self.pushButtonBit11 = self.buttons[11]
-        self.pushButtonBit11.setGeometry(QtCore.QRect(130, 50, 32, 32))
-        self.pushButtonBit11.setAutoExclusive(False)
-        self.pushButtonBit11.setAutoDefault(False)
-        self.pushButtonBit11.setDefault(False)
-        self.pushButtonBit11.setFlat(False)
-        self.pushButtonBit11.setObjectName("pushButtonBit11")
-
-        self.buttonGroup_2.addButton(self.pushButtonBit11)
-
-        self.label_2 = QtWidgets.QLabel(self.frameByte2)
-        self.label_2.setGeometry(QtCore.QRect(10, 0, 55, 16))
-        self.label_2.setObjectName("label_2")
-
-        self.labelHexValue = QtWidgets.QLabel(self.mainFrame)
-        self.labelHexValue.setGeometry(QtCore.QRect(20, 230, 121, 28))
-        self.labelHexValue.setObjectName("labelHexValue")
-
-        self.pushButtonCopyDeciValue = QtWidgets.QPushButton(self.mainFrame)
-        self.pushButtonCopyDeciValue.setGeometry(QtCore.QRect(370, 280, 161, 28))
-        self.pushButtonCopyDeciValue.setObjectName("pushButtonCopyDeciValue")
-
-        self.pushButtonBit07 = self.buttons[7]
-        self.pushButtonBit07.setGeometry(QtCore.QRect(20, 50, 32, 32))
-        self.pushButtonBit07.setAutoExclusive(False)
-        self.pushButtonBit07.setAutoDefault(False)
-        self.pushButtonBit07.setDefault(False)
-        self.pushButtonBit07.setFlat(False)
-        self.pushButtonBit07.setObjectName("pushButtonBit07")
-
-        self.buttonGroup = QtWidgets.QButtonGroup(BitMask32)
-        self.buttonGroup.setObjectName("buttonGroup")
-        self.buttonGroup.addButton(self.pushButtonBit07)
-
-        self.pushButtonBit00 = self.buttons[0]
-        self.pushButtonBit00.setGeometry(QtCore.QRect(230, 50, 32, 32))
-        self.pushButtonBit00.setToolTip("")
-        self.pushButtonBit00.setAutoExclusive(False)
-        self.pushButtonBit00.setAutoDefault(False)
-        self.pushButtonBit00.setDefault(False)
-        self.pushButtonBit00.setFlat(False)
-        self.pushButtonBit00.setObjectName("pushButtonBit00")
-
-        self.buttonGroup.addButton(self.pushButtonBit00)
-
-        self.pushButtonBit05 = self.buttons[5]
-        self.pushButtonBit05.setGeometry(QtCore.QRect(80, 50, 32, 32))
-        self.pushButtonBit05.setAutoExclusive(False)
-        self.pushButtonBit05.setAutoDefault(False)
-        self.pushButtonBit05.setDefault(False)
-        self.pushButtonBit05.setFlat(False)
-        self.pushButtonBit05.setObjectName("pushButtonBit05")
-
-        self.buttonGroup.addButton(self.pushButtonBit05)
-
-        self.pushButtonBit02 = self.buttons[2]
-        self.pushButtonBit02.setGeometry(QtCore.QRect(170, 50, 32, 32))
-        self.pushButtonBit02.setAutoExclusive(False)
-        self.pushButtonBit02.setAutoDefault(False)
-        self.pushButtonBit02.setDefault(False)
-        self.pushButtonBit02.setFlat(False)
-        self.pushButtonBit02.setObjectName("pushButtonBit02")
-
-        self.buttonGroup.addButton(self.pushButtonBit02)
-
-        self.pushButtonBit03 = self.buttons[3]
-        self.pushButtonBit03.setGeometry(QtCore.QRect(140, 50, 32, 32))
-        self.pushButtonBit03.setAutoExclusive(False)
-        self.pushButtonBit03.setAutoDefault(False)
-        self.pushButtonBit03.setDefault(False)
-        self.pushButtonBit03.setFlat(False)
-        self.pushButtonBit03.setObjectName("pushButtonBit03")
-
-        self.buttonGroup.addButton(self.pushButtonBit03)
-
-        self.pushButtonBit04 = self.buttons[4]
-        self.pushButtonBit04.setGeometry(QtCore.QRect(110, 50, 32, 32))
-        self.pushButtonBit04.setAutoExclusive(False)
-        self.pushButtonBit04.setAutoDefault(False)
-        self.pushButtonBit04.setDefault(False)
-        self.pushButtonBit04.setFlat(False)
-        self.pushButtonBit04.setObjectName("pushButtonBit04")
-
-        self.buttonGroup.addButton(self.pushButtonBit04)
-
-        self.pushButtonBit06 = self.buttons[6]
-        self.pushButtonBit06.setGeometry(QtCore.QRect(50, 50, 32, 32))
-        self.pushButtonBit06.setAutoExclusive(False)
-        self.pushButtonBit06.setAutoDefault(False)
-        self.pushButtonBit06.setDefault(False)
-        self.pushButtonBit06.setFlat(False)
-        self.pushButtonBit06.setObjectName("pushButtonBit06")
-
-        self.buttonGroup.addButton(self.pushButtonBit06)
-
-        self.pushButtonBit01 = self.buttons[1]
-        self.pushButtonBit01.setGeometry(QtCore.QRect(200, 50, 32, 32))
-        self.pushButtonBit01.setAutoExclusive(False)
-        self.pushButtonBit01.setAutoDefault(False)
-        self.pushButtonBit01.setDefault(False)
-        self.pushButtonBit01.setFlat(False)
-        self.pushButtonBit01.setObjectName("pushButtonBit01")
-
-        self.buttonGroup.addButton(self.pushButtonBit01)
 
         self.labelBit07 = QtWidgets.QLabel(self.frameByte1)
         self.labelBit07.setGeometry(QtCore.QRect(20, 20, 30, 30))
@@ -610,15 +607,20 @@ class Ui_BitMask32(object):
         self.label.setGeometry(QtCore.QRect(10, 0, 55, 16))
         self.label.setObjectName("label")
 
-        self.pushButtonExit = QtWidgets.QPushButton(self.mainFrame)
-        self.pushButtonExit.setGeometry(QtCore.QRect(290, 340, 93, 28))
-        self.pushButtonExit.setObjectName("pushButtonExit")
+        self.label_2 = QtWidgets.QLabel(self.frameByte2)
+        self.label_2.setGeometry(QtCore.QRect(10, 0, 55, 16))
+        self.label_2.setObjectName("label_2")
 
-        self.labelDeciValue = QtWidgets.QLabel(self.mainFrame)
-        self.labelDeciValue.setGeometry(QtCore.QRect(20, 280, 121, 28))
-        self.labelDeciValue.setObjectName("labelDeciValue")
+        self.label_3 = QtWidgets.QLabel(self.frameByte3)
+        self.label_3.setGeometry(QtCore.QRect(10, 0, 55, 16))
+        self.label_3.setObjectName("label_3")
+
+        self.label_4 = QtWidgets.QLabel(self.frameByte4)
+        self.label_4.setGeometry(QtCore.QRect(10, 0, 55, 16))
+        self.label_4.setObjectName("label_4")
 
         BitMask32.setCentralWidget(self.root)
+
         self.statusBar = QtWidgets.QStatusBar(BitMask32)
         self.statusBar.setObjectName("statusBar")
         BitMask32.setStatusBar(self.statusBar)
@@ -744,35 +746,139 @@ class Ui_BitMask32(object):
         self.pushButtonExit.setText(QtWidgets.QApplication.translate("BitMask32", "Exit", None, -1))
         self.labelDeciValue.setText(QtWidgets.QApplication.translate("BitMask32", "Decimal value", None, -1))
 
-    def bindSignals(self, BitMask32):
-        pass
+    def connectSignals(self):
+        for bit_button in self.bit_buttons:
+            bit_button.clicked.connect(bit_button.button_click_slot)
 
+        self.pushButtonClear.clicked.connect(self.pushButtonClear_clicked_slot)
 
-def validate_hex_string(string):
-    string = string.lower()
-    hex_pattern = r"^0x[0-9a-fA-F]+$"
-    return bool(re.match(hex_pattern, string))
+        self.lineEditHexValue.editingFinished.connect(self.lineEditHexValue_editingFinished_slot)
+        self.lineEditDeciValue.editingFinished.connect(self.lineEditDeciValue_editingFinished_slot)
 
+        self.pushButtonCopyHexValue.clicked.connect(self.pushButtonCopyHexa_clicked_slot)
+        self.pushButtonCopyDeciValue.clicked.connect(self.pushButtonCopyDecimal_clicked_slot)
 
-def validate_decimal_string(string):
-    return string.isdigit()
+        self.pushButtonExit.clicked.connect(self.pushButtonExit_clicked_slot)
+        self.checkBoxAOT.clicked.connect(self.checkBoxAOT_checked_slot)
 
+    def update_buttons_values(self):
+        for bit_index in range(0, 32):
+            new_bit_value = ((self.register_value >> bit_index) & 1)
+            self.bit_buttons[bit_index].bit_value = new_bit_value
+            self.bit_buttons[bit_index].setText(str(new_bit_value))
 
-def deci_to_hex(string):
-    return hex(int(string))
+    def update_register_value(self):
+        self.register_value = 0
+        for button in self.bit_buttons:
+            self.register_value |= (button.bit_value << button.index)
 
+    def update_line_edit_values(self):
+        self.lineEditDeciValue.setText(str(self.register_value))
+        self.lineEditHexValue.setText("0x" + hex(self.register_value)[2:].zfill(8))
 
-def hex_to_deci(string):
-    return int(string, 16)
+    def toggle_bit(self, bit_index):
+        current_bit_value = self.bit_buttons[bit_index].bit_value
+        new_bit_value = current_bit_value ^ 1
+        self.bit_buttons[bit_index].bit_value = new_bit_value
+        self.bit_buttons[bit_index].setText(str(new_bit_value))
+
+    @QtCore.Slot(int)
+    def pushButtonBitXX_clicked_slot(self, index):
+        self.toggle_bit(index)
+        self.update_register_value()
+        self.update_line_edit_values()
+        self.show_warning("", 0)
+
+    @QtCore.Slot()
+    def pushButtonClear_clicked_slot(self):
+        for bit_index in range(0, 32):
+            self.bit_buttons[bit_index].bit_value = 0
+            self.bit_buttons[bit_index].setText(str(0))
+
+        self.update_register_value()
+        self.update_line_edit_values()
+        self.show_warning("", 0)
+
+    @QtCore.Slot()
+    def lineEditHexValue_editingFinished_slot(self):
+        hex_string = self.lineEditHexValue.text()
+        if self.validate_hex_string(hex_string):
+            self.show_warning("", 0)
+            self.register_value = int(hex_string, 16)
+            self.update_buttons_values()
+            self.update_line_edit_values()
+        else:
+            self.show_warning(warning="Invalid hexadecimal number!", time_ms=3000)
+
+    @QtCore.Slot()
+    def lineEditDeciValue_editingFinished_slot(self):
+        deci_string = self.lineEditDeciValue.text()
+        if self.validate_decimal_string(deci_string):
+            self.show_warning("", 0)
+            self.register_value = int(deci_string)
+            self.update_buttons_values()
+            self.update_line_edit_values()
+        else:
+            self.show_warning(warning="Invalid decimal number!", time_ms=3000)
+
+    @QtCore.Slot()
+    def pushButtonCopyHexa_clicked_slot(self):
+        self.clipBoard.setText(self.lineEditHexValue.text())
+        self.show_warning("Hexa decimal value copied to clipboard!", 3000)
+
+    @QtCore.Slot()
+    def pushButtonCopyDecimal_clicked_slot(self):
+        self.clipBoard.setText(self.lineEditDeciValue.text())
+        self.show_warning("Decimal value copied to clipboard!", 3000)
+
+    @QtCore.Slot()
+    def checkBoxAOT_checked_slot(self):
+        if self.checkBoxAOT.isChecked():
+            self.mainWindow.setWindowFlags(
+                self.mainWindow.windowFlags() | QtCore.Qt.WindowStaysOnTopHint
+            )
+        else:
+            self.mainWindow.setWindowFlags(
+                self.mainWindow.windowFlags() & ~QtCore.Qt.WindowStaysOnTopHint
+            )
+        self.mainWindow.show()
+
+    @QtCore.Slot()
+    def pushButtonExit_clicked_slot(self):
+        self.clipBoard.setText(self.original_text)
+        sys.exit(0)
+
+    def show_warning(self, warning, time_ms):
+        if time_ms > 0:
+            self.statusBar.showMessage(warning, time_ms)
+
+    @staticmethod
+    def validate_hex_string(string):
+        string = string.lower()
+        hex_pattern = r"^0x[0-9a-fA-F]{0,8}$"
+        return bool(re.match(hex_pattern, string))
+
+    @staticmethod
+    def validate_decimal_string(string):
+        return string.isdigit()
+
+    @staticmethod
+    def deci_to_hex(string):
+        return hex(int(string))
+
+    @staticmethod
+    def hex_to_deci(string):
+        return int(string, 16)
 
 
 if __name__ == "__main__":
+
     import sys
     app = QtWidgets.QApplication(sys.argv)
     BitMask32 = QtWidgets.QMainWindow()
     ui = Ui_BitMask32()
     ui.setupUi(BitMask32)
-    ui.bindSignals(BitMask32)
+    ui.connectSignals()
     BitMask32.show()
     sys.exit(app.exec_())
 
