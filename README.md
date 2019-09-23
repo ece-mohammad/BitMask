@@ -2,13 +2,12 @@
 [![Download RegMask](https://sourceforge.net/sflogo.php?type=13&group_id=3078726)](https://sourceforge.net/p/regmask/)
 
 
-# RegMask:
-A small tool that makes generating bit masks easy.
+# BitMask:
+A small tool for generating bit masks easily.
 
-It shows  visual view of a 32-bit register, where you can toggle each bit simply by clicking on it.
-The value of the register is updated and it can be copied to the clipboard by a click on Copy button.
-The register can be reset to 0 by clear button.
+A visual view of a `virtual` 32-bit register, where you can toggle each bit by clicking on it.
+The value of the register is updated and it can be copied to the clipboard by copy buttons.
 The window can be set to be always on top so you can switch focus to your editor without losing the window.
 
 # Todo:
-- Add an entry box with decimal value to update the `32-bits` with.
+-
